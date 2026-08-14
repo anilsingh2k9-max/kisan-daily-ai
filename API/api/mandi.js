@@ -1,3 +1,4 @@
+
 const RESOURCE_ID = "9ef84268-d588-465a-a308-a864a43d0070";
 
 export default async function handler(req, res) {
