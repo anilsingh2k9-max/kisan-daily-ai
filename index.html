@@ -284,179 +284,80 @@ async function loadMandi() {
 
 
 /* State बदलने पर District */
-state.onchange = () => {
+state.onchange = async () => {
 
   const selectedState = state.value;
 
   district.innerHTML =
-    '<option value="">जिला चुनें</option>';
+    '<option value="">जिला लोड हो रहा है…</option>';
 
   commodity.innerHTML =
     '<option value="">फसल चुनें</option>';
 
-  if (!selectedState) return;
-
-  const districts = records
-    .filter(row =>
-      String(row.state || "").trim() === selectedState
-    )
-    .map(row =>
-      String(row.district || "").trim()
-    )
-    .filter(Boolean);
-
-  fillSelect(
-    district,
-    districts,
-    "जिला चुनें"
-  );
-};
-
-
-/* District बदलने पर Commodity */
-district.onchange = () => {
-
-  const selectedState = state.value;
-  const selectedDistrict = district.value;
-
-  commodity.innerHTML =
-    '<option value="">फसल चुनें</option>';
-
-  if (!selectedState || !selectedDistrict) {
-    return;
-  }
-
-  const commodities = records
-    .filter(row =>
-      String(row.state || "").trim() === selectedState &&
-      String(row.district || "").trim() === selectedDistrict
-    )
-    .map(row =>
-      String(row.commodity || "").trim()
-    )
-    .filter(Boolean);
-
-  fillSelect(
-    commodity,
-    commodities,
-    "फसल चुनें"
-  );
-};
-
-
-/* मंडी भाव दिखाएं */
-document.getElementById("mandiBtn").onclick = () => {
-
-  const selectedState = state.value;
-  const selectedDistrict = district.value;
-  const selectedCommodity = commodity.value;
+  mandiResult.innerHTML = "";
 
   if (!selectedState) {
-
-    mandiResult.innerHTML =
-      '<div class="result">पहले राज्य चुनें।</div>';
-
+    district.innerHTML =
+      '<option value="">जिला चुनें</option>';
     return;
   }
 
-  const rows = records.filter(row => {
+  mandiStatus.textContent =
+    "🔄 " + selectedState +
+    " का मंडी डेटा लोड हो रहा है…";
 
-    const rowState =
-      String(row.state || "").trim();
+  try {
 
-    const rowDistrict =
-      String(row.district || "").trim();
-
-    const rowCommodity =
-      String(row.commodity || "").trim();
-
-    return (
-      rowState === selectedState &&
-      (!selectedDistrict ||
-        rowDistrict === selectedDistrict) &&
-      (!selectedCommodity ||
-        rowCommodity === selectedCommodity)
+    const response = await fetch(
+      "/api/mandi?state=" +
+      encodeURIComponent(selectedState) +
+      "&limit=1000&offset=0",
+      {
+        cache: "no-store"
+      }
     );
-  });
 
-  if (!rows.length) {
+    const data = await response.json();
 
-    mandiResult.innerHTML =
-      '<div class="result">' +
-      '❌ इस चयन के लिए अभी मंडी रिकॉर्ड नहीं मिला।' +
-      '<br><br>' +
-      'किसी दूसरे जिले या फसल को चुनकर देखें।' +
-      '</div>';
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Mandi API error"
+      );
+    }
 
-    return;
+    records = Array.isArray(data.records)
+      ? data.records
+      : [];
+
+    const districts = records
+      .map(row =>
+        String(row.district || "").trim()
+      )
+      .filter(Boolean);
+
+    fillSelect(
+      district,
+      districts,
+      "जिला चुनें"
+    );
+
+    mandiStatus.textContent =
+      "✅ " +
+      selectedState +
+      " में " +
+      [...new Set(districts)].length +
+      " जिले उपलब्ध";
+
+  } catch (error) {
+
+    district.innerHTML =
+      '<option value="">जिला नहीं मिला</option>';
+
+    mandiStatus.textContent =
+      "❌ मंडी डेटा नहीं मिला: " +
+      error.message;
   }
-
-  mandiResult.innerHTML = rows
-    .slice(0, 50)
-    .map(row => {
-
-      const market =
-        row.market ||
-        row.market_name ||
-        "मंडी";
-
-      const min =
-        row.min_price ??
-        row.min ??
-        "--";
-
-      const max =
-        row.max_price ??
-        row.max ??
-        "--";
-
-      const modal =
-        row.modal_price ??
-        row.modal ??
-        "--";
-
-      return `
-        <div class="mandi-row">
-
-          <div class="mandi-title">
-            🏪 ${esc(market)}
-          </div>
-
-          <div class="muted">
-            ${esc(row.district || "")}
-            •
-            ${esc(row.state || "")}
-            •
-            ${esc(row.commodity || "")}
-          </div>
-
-          <div class="mandi-price">
-
-            <div>
-              न्यूनतम
-              <b>₹${esc(min)}</b>
-            </div>
-
-            <div>
-              अधिकतम
-              <b>₹${esc(max)}</b>
-            </div>
-
-            <div>
-              Modal
-              <b>₹${esc(modal)}</b>
-            </div>
-
-          </div>
-
-        </div>
-      `;
-
-    })
-    .join("");
 };
-
-
 /* मंडी API शुरू करें */
 loadMandi();
   /* FARM TIPS */
