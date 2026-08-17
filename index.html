@@ -8,271 +8,76 @@
 
 <style>
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  background:#eef3eb;
-  color:#172116;
-  font-family:system-ui,-apple-system,sans-serif
-}
-
-.app{
-  max-width:520px;
-  min-height:100vh;
-  margin:auto;
-  background:#fff;
-  padding-bottom:30px
-}
-
-header{
-  height:72px;
-  padding:12px 16px;
-  display:flex;
-  align-items:center;
-  border-bottom:1px solid #e4e9e1
-}
-
-header b{
-  font-size:21px;
-  display:block
-}
-
-header small,
-.muted{
-  color:#687264;
-  font-size:13px
-}
-
-main{
-  padding:14px 16px
-}
-
-.hero{
-  padding:20px;
-  border-radius:22px;
-  background:linear-gradient(135deg,#276b2b,#69a83f);
-  color:#fff
-}
-
-.hero h1{
-  margin:8px 0;
-  font-size:24px
-}
-
-.hero p{
-  margin:0;
-  line-height:1.5
-}
-
-.card{
-  background:#fff;
-  border:1px solid #e0e7dc;
-  border-radius:17px;
-  padding:15px;
-  margin:12px 0;
-  box-shadow:0 3px 12px #00000009
-}
-
-select,
-input{
-  width:100%;
-  padding:12px;
-  border:1px solid #d7dfd3;
-  border-radius:12px;
-  margin:7px 0;
-  font-size:15px
-}
-
-.primary{
-  width:100%;
-  border:0;
-  background:#2e7d32;
-  color:#fff;
-  border-radius:12px;
-  padding:12px 16px;
-  font-weight:700;
-  font-size:15px;
-  margin-top:5px
-}
-
-.preview{
-  width:100%;
-  max-height:300px;
-  object-fit:cover;
-  border-radius:15px;
-  margin-top:10px;
-  display:none
-}
-
-.result{
-  background:#f7faf5;
-  border-left:4px solid #4b8d3d;
-  padding:14px;
-  border-radius:12px;
-  margin-top:12px;
-  white-space:pre-wrap;
-  line-height:1.55
-}
-
-.weather{
-  background:linear-gradient(135deg,#e9f5ff,#f7fbff);
-  border:1px solid #d5e9f7
-}
-
-.weather-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center
-}
-
-.temp{
-  font-size:36px;
-  font-weight:800
-}
-
-.weather-icon{
-  font-size:45px
-}
-
-.weather-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin-top:12px
-}
-
-.weather-item{
-  background:#fff;
-  border-radius:12px;
-  padding:10px;
-  text-align:center;
-  border:1px solid #e6edf2
-}
-
-.weather-item b{
-  display:block;
-  font-size:14px;
-  margin-top:4px
-}
-
-.tip{
-  padding:11px;
-  margin:8px 0;
-  background:#f5f9f1;
-  border-radius:12px;
-  border-left:4px solid #66a64b
-}
-
-.tag{
-  display:inline-block;
-  padding:5px 9px;
-  background:#edf6e9;
-  border-radius:12px;
-  font-size:12px;
-  color:#2e7d32
-}
-
-.location-row{
-  display:flex;
-  gap:7px
-}
-
-.location-row input{
-  flex:1
-}
-
-.location-row button{
-  width:48px;
-  border:0;
-  border-radius:12px;
-  background:#2e7d32;
-  color:#fff;
-  font-size:20px
-}
-
-.mandi-row{
-  background:#fafcf9;
-  border:1px solid #e0e7dc;
-  border-radius:12px;
-  padding:12px;
-  margin-top:9px
-}
-
-.mandi-title{
-  font-weight:700;
-  color:#205c25
-}
-
-.mandi-price{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:6px;
-  margin-top:8px
-}
-
-.mandi-price div{
-  background:#f2f7ef;
-  padding:8px 4px;
-  border-radius:9px;
-  text-align:center;
-  font-size:12px
-}
-
-.mandi-price b{
-  display:block;
-  font-size:14px;
-  margin-top:3px
-}
-
-.hidden{
-  display:none
-}
+body{margin:0;background:#eef3eb;color:#172116;font-family:system-ui,-apple-system,sans-serif}
+.app{max-width:520px;min-height:100vh;margin:auto;background:#fff;padding-bottom:30px}
+header{height:72px;padding:12px 16px;display:flex;align-items:center;border-bottom:1px solid #e4e9e1}
+header b{font-size:21px;display:block}
+header small,.muted{color:#687264;font-size:13px}
+main{padding:14px 16px}
+.hero{padding:20px;border-radius:22px;background:linear-gradient(135deg,#276b2b,#69a83f);color:#fff}
+.hero h1{margin:8px 0;font-size:24px}
+.hero p{margin:0;line-height:1.5}
+.card{background:#fff;border:1px solid #e0e7dc;border-radius:17px;padding:15px;margin:12px 0;box-shadow:0 3px 12px #00000009}
+select,input{width:100%;padding:12px;border:1px solid #d7dfd3;border-radius:12px;margin:7px 0;font-size:15px}
+.primary{width:100%;border:0;background:#2e7d32;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;font-size:15px;margin-top:5px}
+.preview{width:100%;max-height:300px;object-fit:cover;border-radius:15px;margin-top:10px;display:none}
+.result{background:#f7faf5;border-left:4px solid #4b8d3d;padding:14px;border-radius:12px;margin-top:12px;white-space:pre-wrap;line-height:1.55}
+.weather{background:linear-gradient(135deg,#e9f5ff,#f7fbff);border:1px solid #d5e9f7}
+.weather-top{display:flex;justify-content:space-between;align-items:center}
+.temp{font-size:36px;font-weight:800}
+.weather-icon{font-size:45px}
+.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.weather-item{background:#fff;border-radius:12px;padding:10px;text-align:center;border:1px solid #e6edf2}
+.weather-item b{display:block;font-size:14px;margin-top:4px}
+.tip{padding:11px;margin:8px 0;background:#f5f9f1;border-radius:12px;border-left:4px solid #66a64b}
+.tag{display:inline-block;padding:5px 9px;background:#edf6e9;border-radius:12px;font-size:12px;color:#2e7d32}
+.location-row{display:flex;gap:7px}
+.location-row input{flex:1}
+.location-row button{width:48px;border:0;border-radius:12px;background:#2e7d32;color:#fff;font-size:20px}
+.mandi-row{background:#fafcf9;border:1px solid #e0e7dc;border-radius:12px;padding:12px;margin-top:9px}
+.mandi-title{font-weight:700;color:#205c25}
+.mandi-price{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.mandi-price div{background:#f2f7ef;padding:8px 4px;border-radius:9px;text-align:center;font-size:12px}
+.mandi-price b{display:block;font-size:14px;margin-top:3px}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
-
 <div class="app">
 
 <header>
-  <div>
-    <b>🌾 Kisan Daily</b>
-    <small>किसान की रोज़ की खेती सहायता</small>
-  </div>
+<div>
+<b>🌾 Kisan Daily</b>
+<small>किसान की रोज़ की खेती सहायता</small>
+</div>
 </header>
 
 <main>
 
 <section class="hero">
-  <span class="tag">Kisan Daily</span>
-  <h1>आज की खेती की जरूरी जानकारी</h1>
-  <p>
-    मौसम देखें, मंडी भाव जानें, फसल के अनुसार आज की सलाह लें
-    और जरूरत पड़ने पर फसल की फोटो से जांच करें।
-  </p>
+<span class="tag">Kisan Daily</span>
+<h1>आज की खेती की जरूरी जानकारी</h1>
+<p>मौसम देखें, मंडी भाव जानें, फसल के अनुसार आज की सलाह लें और जरूरत पड़ने पर फसल की फोटो से जांच करें।</p>
 </section>
 
 
-<!-- =========================
-     WEATHER
-========================= -->
+<!-- WEATHER -->
 
 <div class="card weather">
 
 <b>🌦️ आज का मौसम</b>
 
 <div class="location-row">
-  <input id="city" placeholder="शहर / जिला लिखें">
-  <button id="locate" title="मेरी location">📍</button>
+<input id="city" placeholder="शहर / जिला लिखें">
+<button id="locate">📍</button>
 </div>
 
 <button class="primary" id="weatherBtn">
-  🌦️ मौसम देखें
+🌦️ मौसम देखें
 </button>
 
-<div id="weatherStatus"
-     class="muted"
-     style="margin-top:10px"></div>
+<div id="weatherStatus" class="muted" style="margin-top:10px"></div>
 
 <div id="weatherResult" class="hidden">
 
@@ -281,35 +86,33 @@ input{
 <div class="weather-top">
 
 <div>
-  <div id="weatherPlace" class="muted"></div>
-  <div id="temperature" class="temp">--°C</div>
-  <div id="condition">--</div>
+<div id="weatherPlace" class="muted"></div>
+<div id="temperature" class="temp">--°C</div>
+<div id="condition">--</div>
 </div>
 
-<div id="weatherIcon" class="weather-icon">
-  🌤️
-</div>
+<div id="weatherIcon" class="weather-icon">🌤️</div>
 
 </div>
 
 <div class="weather-grid">
 
 <div class="weather-item">
-  💧
-  <b id="humidity">--%</b>
-  <small>नमी</small>
+💧
+<b id="humidity">--%</b>
+<small>नमी</small>
 </div>
 
 <div class="weather-item">
-  💨
-  <b id="wind">--</b>
-  <small>हवा km/h</small>
+💨
+<b id="wind">--</b>
+<small>हवा km/h</small>
 </div>
 
 <div class="weather-item">
-  🌧️
-  <b id="rain">--</b>
-  <small>बारिश mm</small>
+🌧️
+<b id="rain">--</b>
+<small>बारिश mm</small>
 </div>
 
 </div>
@@ -320,38 +123,77 @@ input{
 </div>
 
 
-<!-- =========================
-     MANDI
-========================= -->
+<!-- MANDI -->
 
 <div class="card">
 
 <b>🌾 आज का मंडी भाव</b>
 
 <p class="muted">
-  उपलब्ध मंडी डेटा के आधार पर भाव देखें।
+उपलब्ध सरकारी मंडी डेटा के आधार पर भाव देखें।
 </p>
 
 <select id="mandiState">
-  <option value="">राज्य चुनें</option>
+
+<option value="">राज्य / केंद्र शासित प्रदेश चुनें</option>
+
+<option value="Andhra Pradesh">Andhra Pradesh</option>
+<option value="Arunachal Pradesh">Arunachal Pradesh</option>
+<option value="Assam">Assam</option>
+<option value="Bihar">Bihar</option>
+<option value="Chhattisgarh">Chhattisgarh</option>
+<option value="Goa">Goa</option>
+<option value="Gujarat">Gujarat</option>
+<option value="Haryana">Haryana</option>
+<option value="Himachal Pradesh">Himachal Pradesh</option>
+<option value="Jharkhand">Jharkhand</option>
+<option value="Karnataka">Karnataka</option>
+<option value="Kerala">Kerala</option>
+<option value="Madhya Pradesh">Madhya Pradesh</option>
+<option value="Maharashtra">Maharashtra</option>
+<option value="Manipur">Manipur</option>
+<option value="Meghalaya">Meghalaya</option>
+<option value="Mizoram">Mizoram</option>
+<option value="Nagaland">Nagaland</option>
+<option value="Odisha">Odisha</option>
+<option value="Punjab">Punjab</option>
+<option value="Rajasthan">Rajasthan</option>
+<option value="Sikkim">Sikkim</option>
+<option value="Tamil Nadu">Tamil Nadu</option>
+<option value="Telangana">Telangana</option>
+<option value="Tripura">Tripura</option>
+<option value="Uttar Pradesh">Uttar Pradesh</option>
+<option value="Uttarakhand">Uttarakhand</option>
+<option value="West Bengal">West Bengal</option>
+
+<option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+<option value="Chandigarh">Chandigarh</option>
+<option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+<option value="Delhi">Delhi</option>
+<option value="Jammu and Kashmir">Jammu and Kashmir</option>
+<option value="Ladakh">Ladakh</option>
+<option value="Lakshadweep">Lakshadweep</option>
+<option value="Puducherry">Puducherry</option>
+
 </select>
+
 
 <select id="mandiDistrict">
-  <option value="">जिला चुनें</option>
+<option value="">पहले राज्य चुनें</option>
 </select>
+
 
 <select id="mandiCommodity">
-  <option value="">फसल चुनें</option>
+<option value="">पहले जिला चुनें</option>
 </select>
 
+
 <button class="primary" id="mandiBtn">
-  🔍 मंडी भाव देखें
+🔍 मंडी भाव देखें
 </button>
 
-<div id="mandiStatus"
-     class="muted"
-     style="margin-top:10px">
-  मंडी डेटा लोड हो रहा है…
+<div id="mandiStatus" class="muted" style="margin-top:10px">
+राज्य चुनें।
 </div>
 
 <div id="mandiResult"></div>
@@ -359,29 +201,27 @@ input{
 </div>
 
 
-<!-- =========================
-     FARM TIPS
-========================= -->
+<!-- FARM TIPS -->
 
 <div class="card">
 
 <b>🌱 आज की खेती सलाह</b>
 
 <select id="cropTip">
-  <option value="">फसल चुनें</option>
-  <option>धान</option>
-  <option>मक्का</option>
-  <option>गेहूं</option>
-  <option>सरसों</option>
-  <option>आलू</option>
-  <option>टमाटर</option>
-  <option>सब्जियां</option>
-  <option>कपास</option>
-  <option>गन्ना</option>
+<option value="">फसल चुनें</option>
+<option>धान</option>
+<option>मक्का</option>
+<option>गेहूं</option>
+<option>सरसों</option>
+<option>आलू</option>
+<option>टमाटर</option>
+<option>सब्जियां</option>
+<option>कपास</option>
+<option>गन्ना</option>
 </select>
 
 <button class="primary" id="tipBtn">
-  🌱 आज की सलाह देखें
+🌱 आज की सलाह देखें
 </button>
 
 <div id="tipResult"></div>
@@ -389,363 +229,4 @@ input{
 </div>
 
 
-<!-- =========================
-     AI PHOTO
-========================= -->
-
-<div class="card">
-
-<b>📷 फसल की फोटो से शुरुआती जांच</b>
-
-<select id="crop">
-  <option value="">फसल चुनें</option>
-  <option>धान</option>
-  <option>मक्का</option>
-  <option>गेहूं</option>
-  <option>सरसों</option>
-  <option>आलू</option>
-  <option>टमाटर</option>
-  <option>सब्जियां</option>
-  <option>कपास</option>
-  <option>गन्ना</option>
-</select>
-
-<input
-  id="photo"
-  type="file"
-  accept="image/*"
-  capture="environment">
-
-<img id="preview" class="preview">
-
-<button class="primary" id="analyze">
-  🤖 AI से जांच करें
-</button>
-
-<div id="status"
-     class="muted"
-     style="margin-top:10px"></div>
-
-<div id="result"></div>
-
-</div>
-
-
-<div class="card">
-
-<b>⚠️ जरूरी सावधानी</b>
-
-<p class="muted">
-AI और मौसम आधारित सलाह सामान्य जानकारी है।
-यह अंतिम कृषि निदान नहीं है।
-गंभीर समस्या में स्थानीय कृषि विशेषज्ञ से पुष्टि करें।
-बिना पुष्टि के pesticide dose न अपनाएं।
-</p>
-
-</div>
-
-</main>
-</div>
-
-
-<script>
-
-"use strict";
-
-
-/* =========================
-   COMMON ESCAPE
-========================= */
-
-function esc(s){
-
-  return String(s==null?"":s)
-    .replace(/[&<>"']/g,function(m){
-
-      return {
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#039;"
-      }[m];
-
-    });
-
-}
-
-
-/* =========================
-   WEATHER
-========================= */
-
-const weatherStatus =
-  document.getElementById("weatherStatus");
-
-const weatherResult =
-  document.getElementById("weatherResult");
-
-const cityInput =
-  document.getElementById("city");
-
-
-function weatherText(c){
-
-  if(c===0)
-    return ["☀️","साफ मौसम"];
-
-  if([1,2].includes(c))
-    return ["🌤️","आंशिक बादल"];
-
-  if(c===3)
-    return ["☁️","बादल"];
-
-  if([45,48].includes(c))
-    return ["🌫️","कोहरा"];
-
-  if([51,53,55,56,57].includes(c))
-    return ["🌦️","हल्की बूंदाबांदी"];
-
-  if([61,63,65,66,67,80,81,82].includes(c))
-    return ["🌧️","बारिश"];
-
-  if([71,73,75,77].includes(c))
-    return ["❄️","बर्फबारी"];
-
-  if([95,96,99].includes(c))
-    return ["⛈️","गरज के साथ बारिश"];
-
-  return ["🌤️","मौसम सामान्य"];
-}
-
-
-function weatherAdvice(t,r,h){
-
-  let a=[];
-
-  if(r>=5){
-
-    a.push(
-      "🌧️ बारिश की संभावना है। अनावश्यक सिंचाई रोकें।"
-    );
-
-    a.push(
-      "🧪 बारिश से पहले pesticide spray करने से बचें।"
-    );
-
-  }else{
-
-    a.push(
-      "💧 बारिश कम है तो खेत की नमी देखकर सिंचाई की योजना बनाएं।"
-    );
-
-  }
-
-  if(h>=80){
-
-    a.push(
-      "🐛 नमी ज्यादा है। फसल में फफूंद/रोग के लक्षण देखते रहें।"
-    );
-
-  }
-
-  if(t>=35){
-
-    a.push(
-      "☀️ तापमान अधिक है। दोपहर में spray करने से बचें।"
-    );
-
-  }
-
-  if(t<=10){
-
-    a.push(
-      "🥶 तापमान कम है। संवेदनशील फसलों पर निगरानी रखें।"
-    );
-
-  }
-
-  return a.join("\n");
-}
-
-
-async function getWeather(lat,lon,place){
-
-  weatherStatus.textContent =
-    "🔄 मौसम की जानकारी लाई जा रही है…";
-
-  const u =
-    "https://api.open-meteo.com/v1/forecast" +
-    "?latitude="+lat+
-    "&longitude="+lon+
-    "&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m" +
-    "&timezone=auto";
-
-  const r = await fetch(u);
-
-  if(!r.ok)
-    throw Error("मौसम की जानकारी नहीं मिल सकी");
-
-  const c =
-    (await r.json()).current;
-
-  const i =
-    weatherText(c.weather_code);
-
-  document.getElementById("weatherPlace")
-    .textContent =
-    place || "आपकी location";
-
-  document.getElementById("temperature")
-    .textContent =
-    Math.round(c.temperature_2m)+"°C";
-
-  document.getElementById("condition")
-    .textContent = i[1];
-
-  document.getElementById("weatherIcon")
-    .textContent = i[0];
-
-  document.getElementById("humidity")
-    .textContent =
-    Math.round(c.relative_humidity_2m)+"%";
-
-  document.getElementById("wind")
-    .textContent =
-    Math.round(c.wind_speed_10m);
-
-  document.getElementById("rain")
-    .textContent =
-    Number(c.precipitation||0).toFixed(1);
-
-  document.getElementById("weatherAdvice")
-    .innerHTML =
-    "<b>👨‍🌾 किसान के लिए सलाह</b><br><br>"+
-    esc(
-      weatherAdvice(
-        c.temperature_2m,
-        c.precipitation||0,
-        c.relative_humidity_2m
-      )
-    );
-
-  weatherResult.classList.remove("hidden");
-
-  weatherStatus.textContent =
-    "✅ मौसम अपडेट हो गया";
-}
-
-
-document.getElementById("weatherBtn").onclick =
-async()=>{
-
-  try{
-
-    const city =
-      cityInput.value.trim();
-
-    if(city){
-
-      weatherStatus.textContent =
-        "🔎 जगह खोजी जा रही है…";
-
-      const r =
-        await fetch(
-          "https://geocoding-api.open-meteo.com/v1/search"+
-          "?name="+encodeURIComponent(city)+
-          "&count=1&language=hi&format=json"
-        );
-
-      if(!r.ok)
-        throw Error("जगह खोजने में समस्या");
-
-      const d = await r.json();
-
-      if(!d.results?.length)
-        throw Error("यह जगह नहीं मिली");
-
-      const p = d.results[0];
-
-      return await getWeather(
-        p.latitude,
-        p.longitude,
-        p.name+(p.admin1?", "+p.admin1:"")
-      );
-    }
-
-    if(!navigator.geolocation)
-      throw Error("Location उपलब्ध नहीं है");
-
-    weatherStatus.textContent =
-      "📍 आपकी location ली जा रही है…";
-
-    navigator.geolocation.getCurrentPosition(
-
-      p=>getWeather(
-        p.coords.latitude,
-        p.coords.longitude,
-        "आपकी वर्तमान location"
-      ).catch(
-        e=>weatherStatus.textContent=
-          "❌ "+e.message
-      ),
-
-      ()=>weatherStatus.textContent=
-        "📍 Location नहीं मिली। ऊपर अपना जिला/शहर लिखें।"
-    );
-
-  }catch(e){
-
-    weatherStatus.textContent =
-      "❌ "+e.message;
-
-  }
-
-};
-
-
-document.getElementById("locate").onclick =
-()=>{
-  document.getElementById("weatherBtn").click();
-};
-
-
-/* =========================
-   MANDI
-========================= */
-
-const state =
-  document.getElementById("mandiState");
-
-const district =
-  document.getElementById("mandiDistrict");
-
-const commodity =
-  document.getElementById("mandiCommodity");
-
-const mandiStatus =
-  document.getElementById("mandiStatus");
-
-const mandiResult =
-  document.getElementById("mandiResult");
-
-let records = [];
-
-
-/* =========================
-   ALL STATES + UT
-========================= */
-
-const allStates = [
-
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka
+<!-- AI
