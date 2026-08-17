@@ -142,42 +142,323 @@ document.getElementById("weatherBtn").onclick=async()=>{
 };
 document.getElementById("locate").onclick=()=>document.getElementById("weatherBtn").click();
 
-/* MANDI */
-const state=document.getElementById("mandiState"),district=document.getElementById("mandiDistrict"),commodity=document.getElementById("mandiCommodity"),mandiStatus=document.getElementById("mandiStatus"),mandiResult=document.getElementById("mandiResult");
-let records=[];
-function uniq(rows,key){
-  return [...new Set(rows.map(x=>String(x[key]??"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"hi"));
-}
-function fill(el,arr,label){
-  el.innerHTML="<option value=''>"+label+"</option>";
-  arr.forEach(v=>el.insertAdjacentHTML("beforeend","<option value='"+esc(v)+"'>"+esc(v)+"</option>"));
-}
-async function loadMandi(){
-  try{
-    const r=await fetch("/api/mandi",{cache:"no-store"});
-    const d=await r.json();
-    if(!r.ok)throw Error(d.error||"Mandi API error");
-    records=Array.isArray(d.records)?d.records:[];
-    fill(state,uniq(records,"state"),"राज्य चुनें");
-    fill(commodity,uniq(records,"commodity"),"फसल चुनें");
-    mandiStatus.textContent=records.length?"✅ "+records.length+" मंडी रिकॉर्ड उपलब्ध":"⚠️ मंडी रिकॉर्ड उपलब्ध नहीं हैं";
-  }catch(e){mandiStatus.textContent="❌ मंडी डेटा नहीं मिला: "+e.message;}
-}
-state.onchange=()=>{
-  const rows=records.filter(x=>!state.value||String(x.state||"")===state.value);
-  fill(district,uniq(rows,"district"),"जिला चुनें"); fill(commodity,uniq(rows,"commodity"),"फसल चुनें");
-};
-district.onchange=()=>{
-  const rows=records.filter(x=>(!state.value||String(x.state||"")===state.value)&&(!district.value||String(x.district||"")===district.value));
-  fill(commodity,uniq(rows,"commodity"),"फसल चुनें");
-};
-document.getElementById("mandiBtn").onclick=()=>{
-  const rows=records.filter(x=>(!state.value||String(x.state||"")===state.value)&&(!district.value||String(x.district||"")===district.value)&&(!commodity.value||String(x.commodity||"")===commodity.value)).slice(0,50);
-  if(!rows.length){mandiResult.innerHTML='<div class="result">❌ इस चयन के लिए मंडी रिकॉर्ड नहीं मिला।</div>';return;}
-  mandiResult.innerHTML=rows.map(x=>`<div class="mandi-row"><div class="mandi-title">🏪 ${esc(x.market||x.market_name||"मंडी")}</div><div class="muted">${esc(x.district||"")} • ${esc(x.state||"")} • ${esc(x.commodity||"")}</div><div class="mandi-price"><div>न्यूनतम<b>₹${esc(x.min_price??"--")}</b></div><div>अधिकतम<b>₹${esc(x.max_price??"--")}</b></div><div>Modal<b>₹${esc(x.modal_price??"--")}</b></div></div></div>`).join("");
-};
-loadMandi();
+/* =========================
+   MANDI
+========================= */
 
+const state = document.getElementById("mandiState");
+const district = document.getElementById("mandiDistrict");
+const commodity = document.getElementById("mandiCommodity");
+const mandiStatus = document.getElementById("mandiStatus");
+const mandiResult = document.getElementById("mandiResult");
+
+let records = [];
+
+/* भारत के सभी States + UT */
+const allStates = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry"
+];
+
+function fillSelect(el, values, firstText) {
+  el.innerHTML = "";
+
+  const first = document.createElement("option");
+  first.value = "";
+  first.textContent = firstText;
+  el.appendChild(first);
+
+  [...new Set(values)]
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, "en"))
+    .forEach(value => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      el.appendChild(option);
+    });
+}
+
+/* सभी State/UT हमेशा दिखेंगे */
+fillSelect(
+  state,
+  allStates,
+  "राज्य / केंद्र शासित प्रदेश चुनें"
+);
+
+fillSelect(
+  district,
+  [],
+  "जिला चुनें"
+);
+
+fillSelect(
+  commodity,
+  [],
+  "फसल चुनें"
+);
+
+
+/* API से ज्यादा records लाने की कोशिश */
+async function loadMandi() {
+
+  mandiStatus.textContent =
+    "🔄 मंडी डेटा लोड हो रहा है…";
+
+  try {
+
+    const response = await fetch(
+      "/api/mandi?limit=1000&offset=0",
+      {
+        cache: "no-store"
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Mandi API error"
+      );
+    }
+
+    records = Array.isArray(data.records)
+      ? data.records
+      : [];
+
+    if (records.length) {
+
+      mandiStatus.textContent =
+        "✅ " +
+        records.length +
+        " मंडी रिकॉर्ड उपलब्ध";
+
+    } else {
+
+      mandiStatus.textContent =
+        "⚠️ अभी मंडी रिकॉर्ड उपलब्ध नहीं हैं";
+
+    }
+
+  } catch (error) {
+
+    mandiStatus.textContent =
+      "❌ मंडी डेटा नहीं मिला: " +
+      error.message;
+  }
+}
+
+
+/* State बदलने पर District */
+state.onchange = () => {
+
+  const selectedState = state.value;
+
+  district.innerHTML =
+    '<option value="">जिला चुनें</option>';
+
+  commodity.innerHTML =
+    '<option value="">फसल चुनें</option>';
+
+  if (!selectedState) return;
+
+  const districts = records
+    .filter(row =>
+      String(row.state || "").trim() === selectedState
+    )
+    .map(row =>
+      String(row.district || "").trim()
+    )
+    .filter(Boolean);
+
+  fillSelect(
+    district,
+    districts,
+    "जिला चुनें"
+  );
+};
+
+
+/* District बदलने पर Commodity */
+district.onchange = () => {
+
+  const selectedState = state.value;
+  const selectedDistrict = district.value;
+
+  commodity.innerHTML =
+    '<option value="">फसल चुनें</option>';
+
+  if (!selectedState || !selectedDistrict) {
+    return;
+  }
+
+  const commodities = records
+    .filter(row =>
+      String(row.state || "").trim() === selectedState &&
+      String(row.district || "").trim() === selectedDistrict
+    )
+    .map(row =>
+      String(row.commodity || "").trim()
+    )
+    .filter(Boolean);
+
+  fillSelect(
+    commodity,
+    commodities,
+    "फसल चुनें"
+  );
+};
+
+
+/* मंडी भाव दिखाएं */
+document.getElementById("mandiBtn").onclick = () => {
+
+  const selectedState = state.value;
+  const selectedDistrict = district.value;
+  const selectedCommodity = commodity.value;
+
+  if (!selectedState) {
+
+    mandiResult.innerHTML =
+      '<div class="result">पहले राज्य चुनें।</div>';
+
+    return;
+  }
+
+  const rows = records.filter(row => {
+
+    const rowState =
+      String(row.state || "").trim();
+
+    const rowDistrict =
+      String(row.district || "").trim();
+
+    const rowCommodity =
+      String(row.commodity || "").trim();
+
+    return (
+      rowState === selectedState &&
+      (!selectedDistrict ||
+        rowDistrict === selectedDistrict) &&
+      (!selectedCommodity ||
+        rowCommodity === selectedCommodity)
+    );
+  });
+
+  if (!rows.length) {
+
+    mandiResult.innerHTML =
+      '<div class="result">' +
+      '❌ इस चयन के लिए अभी मंडी रिकॉर्ड नहीं मिला।' +
+      '<br><br>' +
+      'किसी दूसरे जिले या फसल को चुनकर देखें।' +
+      '</div>';
+
+    return;
+  }
+
+  mandiResult.innerHTML = rows
+    .slice(0, 50)
+    .map(row => {
+
+      const market =
+        row.market ||
+        row.market_name ||
+        "मंडी";
+
+      const min =
+        row.min_price ??
+        row.min ??
+        "--";
+
+      const max =
+        row.max_price ??
+        row.max ??
+        "--";
+
+      const modal =
+        row.modal_price ??
+        row.modal ??
+        "--";
+
+      return `
+        <div class="mandi-row">
+
+          <div class="mandi-title">
+            🏪 ${esc(market)}
+          </div>
+
+          <div class="muted">
+            ${esc(row.district || "")}
+            •
+            ${esc(row.state || "")}
+            •
+            ${esc(row.commodity || "")}
+          </div>
+
+          <div class="mandi-price">
+
+            <div>
+              न्यूनतम
+              <b>₹${esc(min)}</b>
+            </div>
+
+            <div>
+              अधिकतम
+              <b>₹${esc(max)}</b>
+            </div>
+
+            <div>
+              Modal
+              <b>₹${esc(modal)}</b>
+            </div>
+
+          </div>
+
+        </div>
+      `;
+
+    })
+    .join("");
+};
+
+
+/* मंडी API शुरू करें */
+loadMandi();
 /* FARM TIPS */
 const tips={
 "धान":["खेत में पानी की स्थिति देखें।","पत्तियों पर कीट या धब्बे देखें।","जलभराव से बचें।"],
