@@ -1,495 +1,146 @@
-/* =========================
-   MANDI - STATE → DISTRICT → CROP → MARKET
-========================= */
+const RESOURCE_ID = "9ef84268-d588-465a-a308-a864a43d0070";
 
-const state = document.getElementById("mandiState");
-const district = document.getElementById("mandiDistrict");
-const commodity = document.getElementById("mandiCommodity");
-const mandiStatus = document.getElementById("mandiStatus");
-const mandiResult = document.getElementById("mandiResult");
+export default async function handler(req, res) {
 
-let mandiCache = [];
-
-/* सभी States + UT */
-const allStates = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-  "Andaman and Nicobar Islands",
-  "Chandigarh",
-  "Dadra and Nagar Haveli and Daman and Diu",
-  "Delhi",
-  "Jammu and Kashmir",
-  "Ladakh",
-  "Lakshadweep",
-  "Puducherry"
-];
-
-function fillMandiSelect(select, values, firstText) {
-
-  select.innerHTML = "";
-
-  const first = document.createElement("option");
-  first.value = "";
-  first.textContent = firstText;
-  select.appendChild(first);
-
-  [...new Set(values)]
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b, "en"))
-    .forEach(value => {
-
-      const option = document.createElement("option");
-
-      option.value = value;
-      option.textContent = value;
-
-      select.appendChild(option);
+  if (req.method !== "GET") {
+    return res.status(405).json({
+      error: "GET only"
     });
+  }
+
+  const apiKey = process.env.DATA_GOV_API_KEY;
+
+  if (!apiKey) {
+    return res.status(500).json({
+      error: "DATA_GOV_API_KEY is not configured"
+    });
+  }
+
+  try {
+
+    const q = req.query || {};
+
+    const state = String(q.state || "").trim();
+    const district = String(q.district || "").trim();
+    const market = String(q.market || "").trim();
+    const commodity = String(q.commodity || "").trim();
+    const variety = String(q.variety || "").trim();
+
+    const limit = Math.min(
+      Math.max(Number(q.limit) || 1000, 1),
+      1000
+    );
+
+    const offset = Math.max(
+      Number(q.offset) || 0,
+      0
+    );
+
+    const params = new URLSearchParams({
+      "api-key": apiKey,
+      format: "json",
+      limit: String(limit),
+      offset: String(offset)
+    });
+
+    /*
+      IMPORTANT:
+      Data.gov.in इस resource में
+      state और बाकी fields keyword filters
+      के रूप में accept करता है।
+    */
+
+    if (state) {
+      params.set(
+        "filters[state.keyword]",
+        state
+      );
+    }
+
+    if (district) {
+      params.set(
+        "filters[district.keyword]",
+        district
+      );
+    }
+
+    if (market) {
+      params.set(
+        "filters[market.keyword]",
+        market
+      );
+    }
+
+    if (commodity) {
+      params.set(
+        "filters[commodity.keyword]",
+        commodity
+      );
+    }
+
+    if (variety) {
+      params.set(
+        "filters[variety.keyword]",
+        variety
+      );
+    }
+
+    const apiUrl =
+      `https://api.data.gov.in/resource/${RESOURCE_ID}?${params.toString()}`;
+
+    const response = await fetch(apiUrl);
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+      return res.status(response.status).json({
+        error:
+          data?.error ||
+          data?.message ||
+          "Data.gov.in API error"
+      });
+
+    }
+
+    const records = Array.isArray(data.records)
+      ? data.records
+      : [];
+
+    return res.status(200).json({
+
+      success: true,
+
+      total: Number(data.total || 0),
+
+      count: records.length,
+
+      offset,
+
+      limit,
+
+      filters: {
+        state: state || null,
+        district: district || null,
+        market: market || null,
+        commodity: commodity || null,
+        variety: variety || null
+      },
+
+      records
+
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+
+      error: "Mandi data fetch failed",
+
+      details: error.message
+
+    });
+
+  }
+
 }
-
-
-/* शुरुआत में सभी State दिखाएं */
-
-fillMandiSelect(
-  state,
-  allStates,
-  "राज्य / केंद्र शासित प्रदेश चुनें"
-);
-
-fillMandiSelect(
-  district,
-  [],
-  "जिला चुनें"
-);
-
-fillMandiSelect(
-  commodity,
-  [],
-  "फसल चुनें"
-);
-
-
-/* API से मंडी data */
-
-async function getMandiData(filters = {}) {
-
-  const params = new URLSearchParams();
-
-  params.set("limit", "1000");
-  params.set("offset", "0");
-
-  if (filters.state) {
-    params.set("state", filters.state);
-  }
-
-  if (filters.district) {
-    params.set("district", filters.district);
-  }
-
-  if (filters.commodity) {
-    params.set("commodity", filters.commodity);
-  }
-
-  const response = await fetch(
-    "/api/mandi?" + params.toString(),
-    {
-      cache: "no-store"
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-
-    throw new Error(
-      data.error || "Mandi API error"
-    );
-  }
-
-  return Array.isArray(data.records)
-    ? data.records
-    : [];
-}
-
-
-/* State चुनने पर District API से */
-
-state.onchange = async () => {
-
-  const selectedState = state.value;
-
-  fillMandiSelect(
-    district,
-    [],
-    "🔄 जिला लोड हो रहा है…"
-  );
-
-  fillMandiSelect(
-    commodity,
-    [],
-    "फसल चुनें"
-  );
-
-  mandiResult.innerHTML = "";
-
-  if (!selectedState) {
-
-    fillMandiSelect(
-      district,
-      [],
-      "जिला चुनें"
-    );
-
-    return;
-  }
-
-  mandiStatus.textContent =
-    "🔄 " +
-    selectedState +
-    " के मंडी रिकॉर्ड लोड हो रहे हैं…";
-
-  try {
-
-    const rows = await getMandiData({
-      state: selectedState
-    });
-
-    mandiCache = rows;
-
-    const districts = rows
-      .map(row =>
-        String(row.district || "").trim()
-      )
-      .filter(Boolean);
-
-    fillMandiSelect(
-      district,
-      districts,
-      "जिला चुनें"
-    );
-
-    if (districts.length) {
-
-      mandiStatus.textContent =
-        "✅ " +
-        districts.length +
-        " जिले उपलब्ध";
-
-    } else {
-
-      mandiStatus.textContent =
-        "⚠️ इस राज्य के जिले API में नहीं मिले";
-    }
-
-  } catch (error) {
-
-    fillMandiSelect(
-      district,
-      [],
-      "जिला चुनें"
-    );
-
-    mandiStatus.textContent =
-      "❌ जिला लोड नहीं हुआ: " +
-      error.message;
-  }
-};
-
-
-/* District चुनने पर Crop API से */
-
-district.onchange = async () => {
-
-  const selectedState = state.value;
-  const selectedDistrict = district.value;
-
-  fillMandiSelect(
-    commodity,
-    [],
-    "🔄 फसल लोड हो रही है…"
-  );
-
-  mandiResult.innerHTML = "";
-
-  if (!selectedState || !selectedDistrict) {
-
-    fillMandiSelect(
-      commodity,
-      [],
-      "फसल चुनें"
-    );
-
-    return;
-  }
-
-  mandiStatus.textContent =
-    "🔄 " +
-    selectedDistrict +
-    " की फसलें लोड हो रही हैं…";
-
-  try {
-
-    const rows = await getMandiData({
-      state: selectedState,
-      district: selectedDistrict
-    });
-
-    mandiCache = rows;
-
-    const commodities = rows
-      .map(row =>
-        String(row.commodity || "").trim()
-      )
-      .filter(Boolean);
-
-    fillMandiSelect(
-      commodity,
-      commodities,
-      "फसल चुनें"
-    );
-
-    if (commodities.length) {
-
-      mandiStatus.textContent =
-        "✅ " +
-        commodities.length +
-        " फसल/Commodity उपलब्ध";
-
-    } else {
-
-      mandiStatus.textContent =
-        "⚠️ इस जिले की फसल का data नहीं मिला";
-    }
-
-  } catch (error) {
-
-    mandiStatus.textContent =
-      "❌ फसल लोड नहीं हुई: " +
-      error.message;
-  }
-};
-
-
-/* Crop चुनने पर भाव दिखाने की तैयारी */
-
-commodity.onchange = () => {
-
-  mandiResult.innerHTML = "";
-
-  if (
-    !state.value ||
-    !district.value ||
-    !commodity.value
-  ) {
-    return;
-  }
-
-  const rows = mandiCache.filter(row => {
-
-    return (
-      String(row.state || "").trim() === state.value &&
-      String(row.district || "").trim() === district.value &&
-      String(row.commodity || "").trim() === commodity.value
-    );
-  });
-
-  showMandiResults(rows);
-};
-
-
-/* मंडी भाव दिखाएं */
-
-document.getElementById("mandiBtn").onclick = async () => {
-
-  const selectedState = state.value;
-  const selectedDistrict = district.value;
-  const selectedCommodity = commodity.value;
-
-  if (!selectedState) {
-
-    mandiResult.innerHTML =
-      '<div class="result">पहले राज्य चुनें।</div>';
-
-    return;
-  }
-
-  if (!selectedDistrict) {
-
-    mandiResult.innerHTML =
-      '<div class="result">पहले जिला चुनें।</div>';
-
-    return;
-  }
-
-  if (!selectedCommodity) {
-
-    mandiResult.innerHTML =
-      '<div class="result">पहले फसल चुनें।</div>';
-
-    return;
-  }
-
-  mandiStatus.textContent =
-    "🔄 आज का मंडी भाव लोड हो रहा है…";
-
-  try {
-
-    const rows = await getMandiData({
-      state: selectedState,
-      district: selectedDistrict,
-      commodity: selectedCommodity
-    });
-
-    mandiCache = rows;
-
-    showMandiResults(rows);
-
-    mandiStatus.textContent =
-      rows.length
-        ? "✅ " + rows.length + " रिकॉर्ड मिले"
-        : "⚠️ इस चयन का मंडी भाव नहीं मिला";
-
-  } catch (error) {
-
-    mandiResult.innerHTML =
-      '<div class="result">❌ ' +
-      esc(error.message) +
-      '</div>';
-
-    mandiStatus.textContent = "";
-  }
-};
-
-
-/* Results */
-
-function showMandiResults(rows) {
-
-  if (!rows.length) {
-
-    mandiResult.innerHTML =
-      '<div class="result">' +
-      '❌ इस चयन के लिए मंडी रिकॉर्ड नहीं मिला।' +
-      '<br><br>' +
-      'दूसरी फसल या जिला चुनकर देखें।' +
-      '</div>';
-
-    return;
-  }
-
-  mandiResult.innerHTML = rows
-    .slice(0, 50)
-    .map(row => {
-
-      const market =
-        row.market ||
-        row.market_name ||
-        "मंडी";
-
-      const min =
-        row.min_price ??
-        row.min ??
-        "--";
-
-      const max =
-        row.max_price ??
-        row.max ??
-        "--";
-
-      const modal =
-        row.modal_price ??
-        row.modal ??
-        "--";
-
-      return `
-        <div class="mandi-row">
-
-          <div class="mandi-title">
-            🏪 ${esc(market)}
-          </div>
-
-          <div class="muted">
-            ${esc(row.district || "")}
-            •
-            ${esc(row.state || "")}
-            •
-            ${esc(row.commodity || "")}
-          </div>
-
-          <div class="mandi-price">
-
-            <div>
-              न्यूनतम
-              <b>₹${esc(min)}</b>
-            </div>
-
-            <div>
-              अधिकतम
-              <b>₹${esc(max)}</b>
-            </div>
-
-            <div>
-              Modal
-              <b>₹${esc(modal)}</b>
-            </div>
-
-          </div>
-
-        </div>
-      `;
-
-    })
-    .join("");
-};
-
-
-/* API connection check */
-
-(async function checkMandi() {
-
-  try {
-
-    mandiStatus.textContent =
-      "🔄 मंडी सेवा तैयार हो रही है…";
-
-    const rows = await getMandiData();
-
-    mandiCache = rows;
-
-    mandiStatus.textContent =
-      "✅ मंडी सेवा तैयार है — राज्य चुनें";
-
-  } catch (error) {
-
-    mandiStatus.textContent =
-      "❌ मंडी सेवा में समस्या: " +
-      error.message;
-  }
-
-})();
